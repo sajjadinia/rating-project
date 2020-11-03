@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import LanguageConfig from "./components/LanguageConfig";
 import CategoryConfig from "./components/CategoryConfig";
+import RatingCategoryCofig from "./components/RatingCategoryConfig";
 import NavBar from "./components/NavBar";
+import ErrorAlert from "./components/ErrorAlert";
 
 import { getAllData, getDataByID, saveData, deleteData } from "./apiConnect";
 
@@ -9,7 +11,11 @@ const LANG = "lang";
 const CATEGORY = "category";
 const RATING_CATEGORY = "rating_category";
 
+let alertMessage = { type: "", text: "" };
+
 function App() {
+  const [isErrorAlertOpen, setIsErrorAlertOpen] = useState(false);
+
   const [languageConfigData, setLanguageConfigData] = useState({
     languages: [],
   });
@@ -18,35 +24,73 @@ function App() {
     ratingCategories: [],
     categories: [],
   });
-  // const [ratingCategories , setRatingCategiries] = useState([]);
-  // const [categories , setCategories] = useState([]);
+
+  const [ratingCategoryConfigData, setRatingCategoryConfigData] = useState({
+    ratingCategories: [],
+  });
+
+  const showMessageAlert = (type, text) => {
+    alertMessage = { type: type, text: text };
+    setIsErrorAlertOpen(true);
+    setTimeout(() => {
+      alertMessage = {};
+      setIsErrorAlertOpen(false);
+    }, 5000);
+  };
 
   const handleLanguageSave = async (lang) => {
+    if(lang.name == ""){
+      showMessageAlert("error", "Language name is empty!");
+    } else {
     lang = await saveData(LANG, lang);
-    // let currentLangs = [...languageConfigData ];
-    // let currentLanguageId = currentLangs.findIndex(currentLang => currentLang.id === lang.id);
-    // if(currentLanguageId < 0)
-    //   currentLangs.push(lang);
-    // else
-    //   currentLangs[currentLanguageId] = lang;
-    // setLanguages(currentLangs);
     refresh();
+    }
   };
 
   const handleLanguageDelete = async (id) => {
-    await deleteData(LANG, id);
-    // const langsAfterDelete = languageConfigData.filter(lang => lang.id !== id)
-    // setLanguages(langsAfterDelete);
-    refresh();
+    if (getAllData(CATEGORY).some((category) => category.languageId === id)) {
+      showMessageAlert(
+        "error",
+        "This language is used before and you can not delete it"
+      );
+    } else {
+      await deleteData(LANG, id);
+      refresh();
+    }
+  };
+
+  const handleDeleteRatingCategory = async (id) => {
+    if (isRatingCategoryUsed(id)) {
+      showMessageAlert(
+        "error",
+        "This ratingCategory is used before and you can not delete it"
+      );
+    } else {
+      await deleteData(RATING_CATEGORY, id);
+      refresh();
+    }
   };
 
   const handleSaveCategory = async (category) => {
+    if (category.name == ""){
+      showMessageAlert("error", "Category name is empty!");
+    }else {
     await saveData(CATEGORY, category);
     refresh();
+    }
   };
   const handleDeleteCategory = async (id) => {
     deleteData(CATEGORY, id);
     refresh();
+  };
+
+  const handleSaveRatingCategory = async (ratingCategory) => {
+    if (ratingCategory.name == "") {
+      showMessageAlert("error", "Rating category name is empty!");
+    } else {
+      await saveData(RATING_CATEGORY, ratingCategory);
+      refresh();
+    }
   };
 
   const refresh = () => {
@@ -54,6 +98,7 @@ function App() {
     const ratingCategories = getAllData(RATING_CATEGORY);
     const categories = getAllData(CATEGORY);
     setLanguageConfigData({ languages: languages });
+    setRatingCategoryConfigData({ ratingCategories: ratingCategories });
 
     setCategoryConfigData({
       languages: languages,
@@ -64,6 +109,7 @@ function App() {
 
   useEffect(() => {
     refresh();
+    showMessageAlert("success", "Data successfully loaded");
   }, []);
 
   return (
@@ -77,7 +123,6 @@ function App() {
             data={languageConfigData}
             onSave={handleLanguageSave}
             onDelete={handleLanguageDelete}
-            // onAdd={handleAddLanguage}
           />
         )}
       </section>
@@ -87,20 +132,30 @@ function App() {
             data={CategoryConfigData}
             onSaveCategory={handleSaveCategory}
             onDelete={handleDeleteCategory}
-            onEdit={handleSaveCategory}
           />
         )}
       </section>
+      <ErrorAlert open={isErrorAlertOpen} message={alertMessage} />
+      {languageConfigData.languages.length > 0 && (
+        <section>
+          <RatingCategoryCofig
+            data={ratingCategoryConfigData}
+            LangData={languageConfigData}
+            onDelete={handleDeleteRatingCategory}
+            onSaveRatingCategory={handleSaveRatingCategory}
+          />
+        </section>
+      )}
     </div>
   );
 }
 
 export default App;
 
-//node import axios from "axios"
-// const langs = await axios.get('http://localhost:3080/api/languages');
-// console.log(langs);
-// const lang = await axios.post('http://localhost:3080/api/addLanguage',{name:"fr"});
-// console.log(lang);
-// getAllLanguages()
-// addLanguage()
+function isRatingCategoryUsed(id) {
+  return getAllData(CATEGORY).some((category) =>
+    category.ratingCategoryIds.some(
+      (ratingCategoryId) => ratingCategoryId === id
+    )
+  );
+}

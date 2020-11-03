@@ -34,27 +34,27 @@ if (LANGS.length === 0) {
 if (RATING_CATEGORIES.length === 0) {
   enBehaviour = saveData(RATING_CATEGORY, {
     name: "behavior",
-    lanuageId: enLang.id,
+    languageId: enLang.id,
   });
   faBehaviour = saveData(RATING_CATEGORY, {
     name: "شخصیت",
-    lanuageId: faLang.id,
+    languageId: faLang.id,
   });
   faProduct = saveData(RATING_CATEGORY, {
     name: "محصول",
-    lanuageId: faLang.id,
+    languageId: faLang.id,
   });
   enQuality = saveData(RATING_CATEGORY, {
     name: "quality",
-    lanuageId: enLang.id,
+    languageId: enLang.id,
   });
   enService = saveData(RATING_CATEGORY, {
     name: "service",
-    lanuageId: enLang.id,
+    languageId: enLang.id,
   });
   faQuality = saveData(RATING_CATEGORY, {
     name: "کیفیت",
-    lanuageId: faLang.id,
+    languageId: faLang.id,
   });
 }
 
@@ -62,25 +62,27 @@ if (CATEGORIES.length === 0) {
   saveData(CATEGORY, {
     name: "product",
     languageId: enLang.id,
-    ratingCategoriyIds: [enService.id, enQuality.id],
+    ratingCategoryIds: [enService.id, faQuality.id],
   });
 
   saveData(CATEGORY, {
     name: "دکتر",
     languageId: faLang.id,
-    ratingCategoriyIds: [faBehaviour.id, faQuality.id],
+    ratingCategoryIds: [faBehaviour.id, enBehaviour.id],
   });
   saveData(CATEGORY, {
     name: "محصول",
     languageId: faLang.id,
-    ratingCategoriyIds: [faQuality.id],
+    ratingCategoryIds: [faQuality.id],
   });
 
   saveData(CATEGORY, {
-    name: "محصول",
-    languageId: faLang.id,
-    ratingCategoriyIds: [faQuality.id, faLang.id],
+    name: "resturant",
+    languageId: enLang.id,
+    ratingCategoryIds: [enQuality.id, enService.id, enBehaviour.id]
   });
+
+ 
 }
 
 ReactDOM.render(

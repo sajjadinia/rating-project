@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -12,12 +11,13 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
-
-// const useStyles = makeStyles({
-//   table: {
-//     minWidth: 650,
-//   },
-// });
+import Checkbox from "@material-ui/core/Checkbox";
+import Select from "@material-ui/core/Select";
+import InputLabel from "@material-ui/core/InputLabel";
+import Input from "@material-ui/core/Input";
+import FormControl from "@material-ui/core/FormControl";
+import ListItemText from "@material-ui/core/ListItemText";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,33 +31,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
 function CategoryConfig(props) {
+
+  const classes = useStyles();
+  const theme = useTheme();
+
   const currentCategory = {
     id: "",
     name: "",
     languageId:
       props.data.languages.length > 0 ? props.data.languages[0].id : "",
-    ratingCategoryId:
-      props.data.ratingCategories.length > 0
-        ? props.data.ratingCategories[0].id
-        : "",
+    ratingCategoryIds:
+      props.data.ratingCategories,
   };
-  // languages: languages, ratingCategories:ratingCategories, categories:categories}
-  const classes = useStyles();
-  // console.log("before", props.data);
 
   const [inputsData, setInputsData] = useState(currentCategory);
-  // console.log("after", currentCategory);
-  // // const [categoryName, setCategoryName] = useState(currentCategory.name);
-  // // const [ratingCategoryId, setRatingCategory] = useState(currentCategory.ratingCategoryId);
-  // // const [languageId, setLang] = useState(currentCategory.languagesId);
-
-  // console.log(inputsData.ratingCategoryId);
-  // console.log(inputsData.languageId);
-
-  // useEffect(() => {
-  //   setInputsData(currentCategory)
-  // }, [])
+  const [selectedRatingCategory, setSelectedRatingcategory] = useState([]);
 
   const handleInputData = (event, inputKey) => {
     let tempState = { ...inputsData };
@@ -70,27 +70,27 @@ function CategoryConfig(props) {
   };
 
   const handleEdit = (id) => {
-    let category = props.data.categories.find(category => id == category.id);
-    let tempInputs = {...inputsData};
+    let category = props.data.categories.find((category) => id == category.id);
+    let tempInputs = { ...inputsData };
     tempInputs.name = category.name;
     tempInputs.languageId = category.languageId;
-    tempInputs.ratingCategoryId = category.ratingCategoryId;
+    tempInputs.ratingCategoryIds = category.ratingCategoryIds;
     setInputsData(tempInputs);
-  }
+  };
 
-  
+  const getLanguageName = (id) =>
+    props.data.languages.find((lang) => lang.id === id).name;
 
-  // const handleChangeCategoryName = (event) => {
-  //   setCategoryName(event.target.value);
-  // };
-
-  // const handleChangeRatingCategory = (event) => {
-  //   setRatingCategory(event.target.value);
-  // };
-
-  // const handleChangeLanguage = (event) => {
-  //   setLang(event.target.value);
-  // };
+  const getRatingCategoryNames = (ratingCategoryIds) => {
+    return props.data.ratingCategories
+      .filter((ratingCategory) =>
+        ratingCategoryIds.some(
+          (ratingCategoryId) => ratingCategory.id === ratingCategoryId
+        )
+      )
+      .map((ratingCategory) => ratingCategory.name)
+      .join(",");
+  };
 
   function handleSaveCategory() {
     if (props.onSaveCategory) {
@@ -99,9 +99,11 @@ function CategoryConfig(props) {
     }
   }
 
-  //   const handleChange = (event) => {
-  //     setCurrency(event.target.value);
-  //   };
+  const handleChangeDropdownList = (event) => {
+    setInputsData({...inputsData,  ratingCategoryIds: event.target.value})
+    // setSelectedRatingcategory(event.target.value);
+    // getRatingCategoryNames(selectedRatingCategory)
+  };
 
   return (
     <form className={classes.root} noValidate autoComplete="off">
@@ -125,10 +127,12 @@ function CategoryConfig(props) {
                   {category.id}
                 </TableCell>
                 <TableCell align="left">{category.name}</TableCell>
-                <TableCell align="left">{
-                  props.data.languages.find(id => id==category.ratingCategoryId)
-                }</TableCell>
-                <TableCell align="left">{category.languageId}</TableCell>
+                <TableCell align="left">
+                  {getRatingCategoryNames(category.ratingCategoryIds)}
+                </TableCell>
+                <TableCell align="left">
+                  {getLanguageName(category.languageId)}
+                </TableCell>
                 <TableCell align="left">
                   {
                     <div>
@@ -166,23 +170,33 @@ function CategoryConfig(props) {
         <label style={{ margin: "50px 0px 30px 10px", float: "left" }}>
           Rating Categories
         </label>
-        <TextField
-          style={{ margin: "30px 0 30px 10px", float: "left" }}
-          id="ratingCategoryId"
-          select
-          value={inputsData.ratingCategoryId}
-          onChange={(e) => handleInputData(e, "ratingCategoryId")}
-          SelectProps={{
-            native: true,
-          }}
-          variant="outlined"
+        <FormControl
+          className={classes.formControl}
+          style={{ margin: "15px 50px 30px 10px", float: "left" }}
         >
-          {props.data.ratingCategories.map((rating) => (
-            <option key={rating.id} value={rating.id}>
-              {rating.name}
-            </option>
-          ))}
-        </TextField>
+          <InputLabel id="demo-mutiple-checkbox-label"></InputLabel>
+          <Select
+            labelId="demo-mutiple-checkbox-label"
+            id="demo-mutiple-checkbox"
+            multiple
+            value={inputsData.ratingCategoryIds}
+            onChange={handleChangeDropdownList}
+            input={<Input />}
+            renderValue={(selected) =>  getRatingCategoryNames(selected)}
+            MenuProps={MenuProps}
+          >
+            {props.data.ratingCategories.map((ratingCategory) => (
+              <MenuItem key={ratingCategory.id} value={ratingCategory.id}>
+                <Checkbox
+                  checked={
+                    inputsData.ratingCategoryIds.indexOf(ratingCategory.id) > -1
+                  }
+                />
+                <ListItemText primary={ratingCategory.name} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
       <div>
         <label style={{ margin: "50px 0px 30px 30px", float: "left" }}>
@@ -208,13 +222,23 @@ function CategoryConfig(props) {
       </div>
       <Button
         onClick={() => handleSaveCategory()}
-        style={{ margin: "40px" }}
+        style={{ margin: "40px 5px 40px 40px" }}
         variant="contained"
         size="small"
         color="primary"
         className={classes.margin}
       >
         Save
+      </Button>
+      <Button
+        style={{ margin: "40px 40px 40px 0" }}
+        onClick={() => setInputsData(currentCategory)}
+        variant="contained"
+        size="small"
+        color="primary"
+        className={classes.margin}
+      >
+        Add
       </Button>
     </form>
   );

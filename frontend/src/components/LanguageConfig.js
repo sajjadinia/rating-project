@@ -38,7 +38,7 @@ function LanguageConfig(props) {
     let lang = props.data.languages.find((row) => row.id === id);
     setCurrentLang({ ...lang });
   }
-  
+
   function handleFieldChange(e, name) {
     let lang = { ...currentLang };
     lang[name] = e.target.value;
@@ -49,25 +49,8 @@ function LanguageConfig(props) {
     if (props.onSave) props.onSave(currentLang);
   }
 
-  // // if (props.data.indexOf(currentLang.name) === -1) {
-  // //   console.log(props.data);
-  // //   console.log(currentLang.name);
-  // //   console.log("dosen't exist");
-  // // } else{
-  // //   console.log("exist");
-  // // }
-  // if (currentLang.id !== "") {
-  //  setCurrentLang({ ...currentLang });
-  //   if (props.onSave) props.onSave(currentLang);
-  // } else {
-  //  setCurrentLang({...newLang})
-  //  console.log("currentLang123",currentLang);
-  //   if(props.onSave) props.onAdd(currentLang);
-  // }
-
   function add() {
     setCurrentLang(emptyLang);
-    //if (props.onAdd) props.onAdd({ ...SelectedRow });
   }
 
   return (
@@ -81,15 +64,13 @@ function LanguageConfig(props) {
               <TableCell align="left">Country</TableCell>
               <TableCell align="left">Display Language</TableCell>
               <TableCell align="left"></TableCell>
-              {/* <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
             {props.data.languages.map((row, index) => (
               <TableRow key={row.name}>
                 <TableCell component="th" scope="row">
-                  {index+1}
+                  {index + 1}
                 </TableCell>
                 <TableCell align="left">{row.name}</TableCell>
                 <TableCell align="left">{row.country}</TableCell>
@@ -164,21 +145,3 @@ function LanguageConfig(props) {
   );
 }
 export default LanguageConfig;
-
-// function createData(Id, Name, Actions) {
-//   return { Id, Name, Actions };
-// }
-
-// const rows = [
-//   // createData("Id", "en", <div><DeleteOutlinedIcon /><EditOutlinedIcon /></div>),
-//   // createData("Id", "en",<div><DeleteOutlinedIcon /><EditOutlinedIcon /></div>),
-//   // createData("Id", "en", <div><DeleteOutlinedIcon /><EditOutlinedIcon /></div>),
-//   //   createData('Cupcake', 305, 3.7, 67, 4.3),
-//   //   createData('Gingerbread', 356, 16.0, 49, 3.9),
-// ];
-// const [row, setRow] = useState("");
-// function handleRow(){
-//   const row = setRow(props.id,props.Name);
-//   log
-//   return row
-// }
